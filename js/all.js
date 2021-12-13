@@ -27,7 +27,7 @@ function getProductList() {
     then(function (response) {
       // console.log(response.data);
       productData = response.data.products;
-      // console.log(productData);
+      console.log('產品列表', productData);
       renderDataList();
     })
 
@@ -115,7 +115,7 @@ function getCartList() {
       const jsTotal = document.querySelector(".js-total"); // 總金額
       jsTotal.textContent = response.data.finalTotal;
       cartData = response.data.carts;
-      console.log(cartData);
+      console.log('購物車列表', cartData);
       renderCartList();
     })
     .catch(function (error) {
@@ -180,6 +180,66 @@ discardAllBtn.addEventListener("click", function (e) {
     })
 })
 
+// 表單驗證 Validate
+function formValidate() {
+  const inputs = document.querySelectorAll("input[name],select[data=payment]");
+  // console.log(inputs);
+  const form = document.querySelector(".orderInfo-form");
+  const constraints = {
+    "姓名": {
+      presence: {
+        message: "必填欄位"
+      }
+    },
+    "電話": {
+      presence: {
+        message: "必填欄位"
+      },
+      length: {
+        minimum: 8,
+        message: "需超過 8 碼"
+      }
+    },
+    "信箱": {
+      presence: {
+        message: "必填欄位"
+      },
+      email: {
+        message: "格式錯誤"
+      }
+    },
+    "寄送地址": {
+      presence: {
+        message: "必填欄位"
+      }
+    },
+    "交易方式": {
+      presence: {
+        message: "必填欄位"
+      }
+    },
+  };
+
+  inputs.forEach((item) => {
+    item.addEventListener("change", function () {
+      // console.log(item.nextElementSibling);
+      item.nextElementSibling.textContent = '';
+      let errors = validate(form, constraints) || '';
+      console.log(errors)
+
+      if (errors) {
+        Object.keys(errors).forEach(function (keys) {
+          // console.log(Object.keys(errors));
+
+          console.log(document.querySelector(`[data-message=${keys}]`))
+          document.querySelector(`[data-message="${keys}"]`).textContent = errors[keys];
+        })
+      }
+    });
+  });
+}
+formValidate();
+
 // 送出訂單流程，送出預定資料按鈕綁監聽
 orderInfoBtn.addEventListener("click", function (e) {
   e.preventDefault(); // 消除預設默認行為
@@ -191,18 +251,20 @@ orderInfoBtn.addEventListener("click", function (e) {
     return;
   }
 
-  //綁定 DOM 並且取出表單裡面的值
+
+
+  // 綁定 DOM 並且取出表單裡面的值
   const customerName = document.querySelector("#customerName").value;
   const customerPhone = document.querySelector("#customerPhone").value;
   const customerEmail = document.querySelector("#customerEmail").value;
   const customerAddress = document.querySelector("#customerAddress").value;
   const customerTradeWay = document.querySelector("#tradeWay").value;
 
-  //若表單有空值空字串時就跑return
-  if (customerName == "" || customerPhone == "" || customerEmail == "" || customerAddress == "" || customerTradeWay == "") {
-    alert("請輸入訂單資料"); //若表單有空值空字串時就跑return
-    return;
-  }
+  // //若表單有空值空字串時就跑return
+  // if (customerName == "" || customerPhone == "" || customerEmail == "" || customerAddress == "" || customerTradeWay == "") {
+  //   alert("請輸入訂單資料"); //若表單有空值空字串時就跑return
+  //   return;
+  // }
 
   axios.post(`https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/orders`,
     {
